@@ -3,6 +3,7 @@
       scale="Day"
       :eventHeight="100"
       :cellWidth="100"
+      :rowHeaderWidth="100"
       :durationBarVisible="false"
       :eventBorderRadius="10"
       :rowMarginTop="2"
@@ -50,7 +51,7 @@
 
 <script setup>
 import { DayPilot, DayPilotScheduler } from '@daypilot/daypilot-lite-vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const events = ref([]);
 const resources = ref([]);
@@ -66,11 +67,9 @@ const onTimeRangeSelected = async (args) => {
     id: DayPilot.guid(),
     resource: args.resource,
     text: modal.result,
-    data: {
-      completed: false,
-      status: 'Not Started',
-      attachment: null
-    }
+    important: false,
+    status: 'Not Started',
+    attachment: null
   });
 };
 
@@ -82,10 +81,17 @@ const onStatusChange = (event) => {
   console.log(`Event ${event.text()} status changed to: ${event.data.status}`);
 };
 
+const attachmentUrls = new Set();
+
 const onFileChange = (e, event) => {
   const file = e.target.files[0];
   if (file) {
+    if (event.data.attachment) {
+      URL.revokeObjectURL(event.data.attachment.url);
+      attachmentUrls.delete(event.data.attachment.url);
+    }
     const url = URL.createObjectURL(file);
+    attachmentUrls.add(url);
     event.data.attachment = {
       name: file.name,
       url: url
@@ -93,6 +99,10 @@ const onFileChange = (e, event) => {
     console.log(`File attached to event "${event.text()}": ${file.name}`);
   }
 };
+
+onUnmounted(() => {
+  attachmentUrls.forEach((url) => URL.revokeObjectURL(url));
+});
 
 const schedulerRef = ref(null);
 
@@ -136,7 +146,7 @@ onMounted(() => {
 </script>
 
 <style>
-.scheduler_default_event_inner {
+#app .scheduler_default_event .scheduler_default_event_inner {
   background: #ffcc6699;
   border: 1px solid rgba(248, 185, 50, 0.75);
 }

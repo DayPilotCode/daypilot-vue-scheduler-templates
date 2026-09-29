@@ -9,3 +9,15 @@ This is the code repository for the [How to Add Interactive Elements to Vue Sche
 ## License
 - The code of this tutorial is licensed under Apache License 2.0.
 - This tutorial may include third-party libraries available under their respective licenses.
+
+## Project commands
+
+- Install: `npm ci` (uses the included lockfile).
+- Development: `npm run dev`.
+- Build: `npm run build`.
+- Lint: no `lint` script is provided.
+- Test: this starter does not provide an executable test suite (no `test` script).
+
+## Local attachments
+
+The file control creates a temporary browser object URL. It does not upload files or save event changes to a backend. Reloading resets the demo. Replacing a file or unmounting the component releases its object URL.
